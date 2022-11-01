@@ -8,9 +8,8 @@
 
   // EDITING STARTS HERE (you dont need to edit anything above this line)
 
-  var db = new Pouch('todos');
+  var db = new PouchDB('todos');
   var remoteCouch = false;
-
   db.changes({
     since: 'now',
     live: true
@@ -18,6 +17,9 @@
  
   // We have to create a new todo document and enter it in the database
   function addTodo(text) {
+
+    if( text.length == 0) return;
+
 
     var todo = {
       _id: new Date().toISOString(),
@@ -43,34 +45,36 @@
   //    redrawTodosUI(doc.rows);
   //  });
 
-  db.allDocs({ include_docs: true, descending: false}).then
+  db.allDocs({ include_docs: true, descending: false})
   .then( doc => {
-    console.log(doc);
     redrawTodosUI(doc.rows);
   });
 
   }
 
   function checkboxChanged(todo, event) {
-  //  todo.completed = event.target.checked;
-  //  db.put(todo);
+
+
+    todo.completed = event.target.checked;
+    db.put(todo); //.then(console.log('registro actualizado'));
   }
 
   // User pressed the delete button for a todo, delete it
   function deleteButtonPressed(todo) {
-  //  db.remove(todo);
+    db.remove(todo);
   }
 
   // The input box when editing a todo has blurred, we should save
   // the new title or delete the todo if the title is empty
   function todoBlurred(todo, event) {
-  //  var trimmedText = event.target.value.trim();
-  //  if (!trimmedText) {
-  //    db.remove(todo);
-  //  } else {
-  //    todo.title = trimmedText;
-  //    db.put(todo);
-  //  }
+    var trimmedText = event.target.value.trim();
+
+    if (!trimmedText) {
+      db.remove(todo);
+    } else {
+      todo.title = trimmedText;
+      db.put(todo);
+    }
   }
 
   // Initialise a sync with the remote server
