@@ -10,6 +10,11 @@
 
   var db = new Pouch('todos');
   var remoteCouch = false;
+
+  db.changes({
+    since: 'now',
+    live: true
+  }).on('change', showTodos);
  
   // We have to create a new todo document and enter it in the database
   function addTodo(text) {
@@ -28,35 +33,44 @@
   db.put( todo )
     .then( console.log('Insertado') )
     .catch(console.log);
+
   }
 
   // Show the current list of todos by reading them from the database
   function showTodos() {
-    db.allDocs({include_docs: true}, function(err, doc) {
-      redrawTodosUI(doc.rows);
-    });
+
+  //  db.allDocs({include_docs: true}, function(err, doc) {
+  //    redrawTodosUI(doc.rows);
+  //  });
+
+  db.allDocs({ include_docs: true, descending: false}).then
+  .then( doc => {
+    console.log(doc);
+    redrawTodosUI(doc.rows);
+  });
+
   }
 
   function checkboxChanged(todo, event) {
-    todo.completed = event.target.checked;
-    db.put(todo);
+  //  todo.completed = event.target.checked;
+  //  db.put(todo);
   }
 
   // User pressed the delete button for a todo, delete it
   function deleteButtonPressed(todo) {
-    db.remove(todo);
+  //  db.remove(todo);
   }
 
   // The input box when editing a todo has blurred, we should save
   // the new title or delete the todo if the title is empty
   function todoBlurred(todo, event) {
-    var trimmedText = event.target.value.trim();
-    if (!trimmedText) {
-      db.remove(todo);
-    } else {
-      todo.title = trimmedText;
-      db.put(todo);
-    }
+  //  var trimmedText = event.target.value.trim();
+  //  if (!trimmedText) {
+  //    db.remove(todo);
+  //  } else {
+  //    todo.title = trimmedText;
+  //    db.put(todo);
+  //  }
   }
 
   // Initialise a sync with the remote server
